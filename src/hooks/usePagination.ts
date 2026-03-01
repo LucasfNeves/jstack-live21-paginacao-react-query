@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 
 export function usePagination(initialPage: number = 1) {
-  const [currentPage, setCurrentPage] = useState(initialPage);
   const [totalItems, setTotalItems] = useState(0);
+  const [currentPage, setCurrentPage] = useState(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const page = searchParams.get("page");
+    return page ? Number(page) : initialPage;
+  });
 
   const totalPages = totalItems ? Math.ceil(totalItems / 10) : 0;
   const hasPreviousPage = currentPage > 1;
