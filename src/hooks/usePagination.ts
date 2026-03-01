@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function usePagination(initialPage: number = 1) {
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -9,12 +9,14 @@ export function usePagination(initialPage: number = 1) {
   const hasNextPage = currentPage < totalPages;
 
   const handleNextPage = useCallback(() => {
+    if (!hasNextPage) return;
     setCurrentPage((prev) => prev + 1);
-  }, []);
+  }, [hasNextPage]);
 
   const handlePrevPage = useCallback(() => {
+    if (!hasPreviousPage) return;
     setCurrentPage((prev) => prev - 1);
-  }, []);
+  }, [hasPreviousPage]);
 
   const handleSetPage = useCallback((page: number) => {
     setCurrentPage(page);
@@ -23,6 +25,15 @@ export function usePagination(initialPage: number = 1) {
   const handleSetTotalItems = useCallback((items: number) => {
     setTotalItems(items);
   }, []);
+
+  useEffect(() => {
+    const urlParams = new URL(window.location.href);
+    urlParams.searchParams.set("page", String(currentPage));
+
+    const newUrl = `${urlParams.origin}${urlParams.pathname}?${urlParams.searchParams.toString()}`;
+
+    window.history.replaceState(null, "", newUrl);
+  }, [currentPage]);
 
   return {
     currentPage,
